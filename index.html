@@ -1,0 +1,133 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="./src/index.css" />
+  </head>
+  
+  <body>
+    <canvas ></canvas>
+
+
+    <select id='selector' >
+      <option value="">---</option>
+    </select>
+    <div id="labelDescription">
+
+    </div>
+    <div>
+      <button id="startBTN" >Start</button>
+    </div>
+
+  </body>
+  <script type="module">
+    import {parse,next} from "./src/engine.js"
+    const scale = 4;
+    const worldWidth = 480;
+    const worldHeight = 240;
+   
+
+    const canvas = document.querySelector("canvas");
+    canvas.width = worldWidth * scale;
+    canvas.height = worldHeight * scale;
+    const ctx = canvas.getContext("2d");
+    
+    const render = (world) => {
+      console.log('world::::',world)
+      console.log('world length:',world.length)
+      // console.log("world 07:", world[0][7])
+      // console.log("world 1:", world[1][0])
+      ctx.fillStyle = "#202020";
+      ctx.fillRect(0, 0, worldWidth * scale, worldHeight * scale);
+      ctx.fillStyle = "green";
+      
+      world.forEach((row, y) =>
+        row.forEach(
+          (alive, x) =>
+            alive && ctx.fillRect(x * scale*5, y * scale*5, 5*scale - 1, 5*scale - 1)
+        )
+      );
+    };
+ 
+      // listen for `onload` event
+      const xhr = new XMLHttpRequest();
+    xhr.open('GET', './src/lexicon.json');
+    xhr.send()
+    let array;
+    console.log("xhr:", xhr)
+    var select = document.getElementById("selector")
+    var labelDescription = document.getElementById('labelDescription')
+    xhr.onload = () => {
+        // process response
+        if (xhr.status == 200) {
+            // parse JSON data
+            console.log(JSON.parse(xhr.response));
+            console.log("xhr.response[0].pattern:",JSON.parse(xhr.response)[0].pattern);
+            array = JSON.parse(xhr.response)
+            array.map((item)=>{
+              var opt = document.createElement('option')
+              opt.value= item.name+":"+item.description+":"+item.pattern
+     
+              opt.innerHTML=item.name
+              select.appendChild(opt)
+            })
+            document.getElementById('selector').addEventListener("change", getOption)
+            document.getElementById('startBTN').addEventListener("click",drawPic)
+        } else {
+            console.error('Error!');
+        }
+    };
+    function getOption(){
+      // ctxt.clearRect(0,0, canvas.width, canvas.height);
+      //       ctxt.restore();
+        console.log('click:')
+        console.log('option picked:', document.getElementById('selector').value)
+        console.log("array:",array)
+        
+        if(document.getElementById('selector').value){
+          labelDescription.innerHTML = document.getElementById("selector").value.split(":")[1]
+        }else{
+          labelDescription.innerHTML = "please select one"
+        }
+        
+
+        // const patternContext = document.getElementById('selector').value
+
+        // ctxt.fillStyle = "#56A7E2";
+
+
+        // for (var i = 0; i < patternContext.length; i++ ){
+        //   if(patternContext.charAt(i) ==='O'){
+            
+        //     ctxt.fillRect((i%38)*4, (parseInt(i/38))*4, 4, 4);
+        //     console.log("x:",i%38, "||","y:",parseInt(i/38))
+        //   }
+        // } 
+      }
+
+      function drawPic() {
+        console.log("draw here");
+        console.log("parameter:",parse(array[2].pattern) )
+        console.log('optpion picked when start:',document.getElementById("selector").value)
+        
+        
+          
+        render(parse(document.getElementById("selector").value.split(':')[2]))
+        console.log("after parse:",render(parse(document.getElementById("selector").value.split(':')[2])))
+        //console.log("before next:",render(next(document.getElementById("selector").value.split(':')[2])))
+
+        //render(next(document.getElementById("selector").value.split(':')[2]));
+        // for(var i=0; i< array.length;i++){
+        //   if(document.getElementById("selector").value == array[i].name+":"+array[i].description){
+        //     render(next(array[i+1]))
+        //   }
+
+
+        // }
+
+        
+      }
+  
+
+    
+   
+  </script>
+</html>
